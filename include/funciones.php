@@ -176,7 +176,7 @@ class DB_Funciones
                             }
                         
                          //Función para registrar supervisor
-                        public function inserta_codigoOC($codigoOC, $id_usuario, $fechaActual)
+                        public function inserta_codigoOC($codigoOC, $id_usuario, $fechaActual, $id_almacen)
                         {
 
                             $stmt = $this->conn->prepare("SELECT * FROM codigo_oc WHERE codigo = ?;");
@@ -188,8 +188,8 @@ class DB_Funciones
                             // Comprueba si existe el supervisor
                             if ($result_c->num_rows <= 0) {
 
-                                $stmt = $this->conn->prepare("INSERT INTO codigo_oc(codigo, id_usuarios, fecha_actualizacion) VALUES (?, ?, ?);");
-                                $stmt->bind_param("sss", $codigoOC, $id_usuario, $fechaActual);
+                                $stmt = $this->conn->prepare("INSERT INTO codigo_oc(codigo, id_usuarios, fecha_actualizacion, id_almacen) VALUES (?, ?, ?, ?);");
+                                $stmt->bind_param("ssss", $codigoOC, $id_usuario, $fechaActual, $id_almacen);
                                 $result = $stmt->execute();
                                 $stmt->close();
 
@@ -354,6 +354,44 @@ class DB_Funciones
                              }
      
                          } 
+
+                                                //Función para listar un color
+                       public function codigo_oc($codigo)
+                       {
+                                             
+                            $stmt = $this->conn->prepare("SELECT usuarios.nombres AS nombre_usuario, 
+                            usuarios.apellido_paterno AS apellido_usuario,
+                            codigo_oc.codigo,
+                            codigo_oc.id_codigo_OC,
+                            usuarios.correo,
+                            almacen.nombre,
+                            almacen.direccion,
+                            almacen.CP
+                            FROM codigo_oc 
+                            INNER JOIN usuarios ON codigo_oc.id_usuarios = usuarios.id_usuarios
+                            INNER JOIN almacen ON codigo_oc.id_almacen = almacen.id_almacen
+                            WHERE codigo_oc.codigo = ?");
+                            $stmt->bind_param("s", $codigo);
+                            $stmt->execute();
+                            $resultado = $stmt->get_result();
+                            $stmt->close();
+                                             
+                            return $resultado;
+                       }
+
+                       public function listaralmacenes($id_usuario_clientes)
+                       {
+                   
+                           $stmt = $this->conn->prepare("SELECT * FROM almacen WHERE id_usuario_clientes = ? ORDER BY nombre ASC");
+                           $stmt->bind_param("s", $id_usuario_clientes);
+                           $stmt->execute();
+                           $resultado = $stmt->get_result();
+                           $stmt->close();
+                   
+                           // Devuelve el resultado de la consulta
+                           return $resultado;
+                   
+                       }
 }
 
 ?>

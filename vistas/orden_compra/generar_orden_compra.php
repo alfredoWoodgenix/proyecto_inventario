@@ -8,6 +8,7 @@ $get_code = $_POST['get_code'];
 
 class OrdenCompraPDF extends FPDF {
     function header(){
+        $get_code = $_POST['get_code'];
         $get_id_codigoOC = $_POST['get_id_codigoOC'];
         $fechaActual = date("Y-m-d");
 
@@ -29,7 +30,7 @@ class OrdenCompraPDF extends FPDF {
         $this->SetFont('Arial','B',10);
         $this->Cell(16,8,'PO No.:',0,0,'L');
         $this->SetFont('Arial','',10);
-        $this->Cell(60,8,'991618',0,1,'L');
+        $this->Cell(60,8,$get_code ,0,1,'L');
 
         $this->SetFont('Arial','',10);
         $this->Cell(135,5,'',0,0,'L');
@@ -47,28 +48,33 @@ class OrdenCompraPDF extends FPDF {
     }
 
     function chapterTitle(){
+        $db = new DB_Funciones();
+        $get_code = $_POST['get_code'];
+        $fila_codigoOC = $db->codigo_oc($get_code);
+        $fila = $fila_codigoOC->fetch_object();
+
         $this->SetFont('Arial','B', 11);
         $this->Cell(90,10,'Vendor Information:',0,0,'L');
         $this->SetFont('Arial','B', 11);
         $this->Cell(0,10,'Ship To Information:',0,1,'L');
 
         $this->SetFont('Arial','', 11);
-        $this->Cell(90,2,'LAINEKRAFT USA:',0,0,'L');
+        $this->Cell(90,2,'LAINEKRAFT',0,0,'L');
 
         $this->SetFont('Arial','', 11);
-        $this->Cell(0,2,'MARKRAFT CABINETS, LLC (MF):',0,1,'L');
+        $this->Cell(0,2,$fila->nombre,0,1,'L');
 
         $this->SetFont('Arial','',11);
         $this->Cell(90,10,'',0,0,'L');
 
         $this->SetFont('Arial','',11);
-        $this->Cell(0,10,'536 CASTLE HAYNE ROAD, UNIT 9:',0,1,'L');
+        $this->Cell(0,10,$fila->direccion,0,1,'L');
 
         $this->SetFont('Arial','',11);
         $this->Cell(90,2,'',0,0,'L');
 
         $this->SetFont('Arial','',11);
-        $this->Cell(0,2,'WILMINGTON, NC 28405 USA',0,1,'L');
+        $this->Cell(0,2,$fila->CP,0,1,'L');
 
         $this->Ln(5);
 
@@ -82,7 +88,7 @@ class OrdenCompraPDF extends FPDF {
         $this->SetFont('Arial', '', 11);
 
         // Celda 2: Nombre del comprador (Alfredo Ku)
-        $this->Cell(60, 7, 'Alfredo Ku', 'TRB', 0, 'L');
+        $this->Cell(60, 7, $fila->nombre_usuario . ' ' . $fila->apellido_usuario, 'TRB', 0, 'L');
 
          // Celda 
          $this->SetFont('Arial', 'B', 11);
@@ -107,7 +113,7 @@ class OrdenCompraPDF extends FPDF {
             $this->SetFont('Arial', 'B', 11);
             $this->Cell(20, 7, 'Email:', 'LTB', 0, 'L');
             $this->SetFont('Arial', '', 11);
-            $this->Cell(60, 7, 'alfredo@woodgenix.com.mx', 'TRB', 0, 'L');
+            $this->Cell(60, 7, $fila->correo, 'TRB', 0, 'L');
       
             $this->SetFont('Arial', 'B', 11);
             $this->Cell(35, 7, 'Customer Type:', 'LTB', 0, 'L');
@@ -135,25 +141,25 @@ class OrdenCompraPDF extends FPDF {
         $this->Cell(20, 7, 'Prod. name', 'B', 0, 'C');
 
         $this->SetFont('Arial', 'B', 10);
-        $this->Cell(30, 7, 'Description', 'B', 0, 'C');
+        $this->Cell(40, 7, 'Description', 'B', 0, 'C');
 
         $this->SetFont('Arial', 'B', 10);
-        $this->Cell(48, 7, 'Color', 'B', 0, 'C');
+        $this->Cell(18, 7, 'Color', 'B', 0, 'C');
 
         $this->SetFont('Arial', 'B', 10);
-        $this->Cell(30, 7, 'RIA', 'B', 0, 'C');
+        $this->Cell(33, 7, 'RIA', 'B', 0, 'C');
 
         $this->SetFont('Arial', 'B', 10);
-        $this->Cell(20, 7, 'PO WGNX', 'B', 0, 'C');
+        $this->Cell(22, 7, 'PO', 'B', 0, 'C');
 
         $this->SetFont('Arial', 'B', 10);
-        $this->Cell(20, 7, 'Price unit', 'B', 0, 'C');
+        $this->Cell(22, 7, 'Price unit', 'B', 0, 'C');
 
         $this->SetFont('Arial', 'B', 10);
         $this->Cell(10, 7, 'Qty', 'B', 0, 'C');
 
         $this->SetFont('Arial', 'B', 10);
-        $this->Cell(10, 7, 'Total', 'B', 1, 'C');
+        $this->Cell(0, 7, 'Total', 'B', 1, 'C');
 
         $db = new DB_Funciones();
         $get_id_codigoOC = $_POST['get_id_codigoOC']; 
@@ -161,39 +167,57 @@ class OrdenCompraPDF extends FPDF {
         $fila_articulos = $db->listar_articulos_oc($get_id_codigoOC, $id_usuario_clientes);
 
         $total_fin = 0;
+        $count = 5;
+        $contador = 1;
+        $multiplicador = 1;
 
         while ($row = $fila_articulos->fetch_object()) {
-            $this->Ln(2);
-        
-            $this->SetFont('Arial', '', 7);
-            $this->Cell(20, 5, $row->nombre, 0, 0, 'C');
-        
-            $this->SetFont('Arial', '', 7);
-            $this->Cell(30, 5, $row->descripcion, 0, 0, 'C');
-        
-            $this->SetFont('Arial', '', 7);
-            $this->Cell(48, 5, $row->nombre_color, 0, 0, 'C');
-        
-            $this->SetFont('Arial', '', 7);
-            $this->Cell(30, 5, $row->nombre_presentacion, 0, 0, 'C');
-        
-            $this->SetFont('Arial', '', 7);
-            $this->Cell(20, 5, $row->OC_interna, 0, 0, 'C');
+
+            $this->SetFont('Arial', '', 10);
+
+            $x = $this->GetX();
+            $y = $this->GetY();
+
+            $altura = $y + $count;
+
+            if($contador >= 3){
+                $resta_altura = 15 * $multiplicador;
+                $multiplicador++;
+            }else{
+                $resta_altura = 0;
+            }
+
+            $resta_al_ttl = $altura - $resta_altura;
+
+            $this->SetXY($x, $resta_al_ttl);
+            $this->MultiCell(20, 5, $row->nombre, 0,'C');
             
+            $this->SetXY($x + 25, $resta_al_ttl);
+            $this->MultiCell(30, 5, $row->descripcion, 0, 'C');
+
+            $this->SetXY($x + 45, $resta_al_ttl); 
+            $this->MultiCell(48, 5, $row->nombre_color, 0, 'C');
+
+            $this->SetXY($x + 80, $resta_al_ttl);  
+            $this->MultiCell(30, 5, $row->nombre_presentacion, 0, 'C');
+
+            $this->SetXY($x + 110, $resta_al_ttl); 
+            $this->MultiCell(25, 5, $row->OC_interna, 0, 'C');
+
+            $this->SetXY($x + 135, $resta_al_ttl); 
             $precio_formateado = number_format($row->precio, 2, '.', ',');
-        
-            $this->SetFont('Arial', '', 7);
-            $this->Cell(20, 5, '$' . $precio_formateado, 0, 0, 'C');
-        
-            $this->SetFont('Arial', '', 7);
-            $this->Cell(10, 5, $row->cantidad, 0, 0, 'C');
+            $this->MultiCell(20, 5, '$' . $precio_formateado, 0,'C');
             
+            $this->SetXY($x + 155, $resta_al_ttl); 
+            $this->MultiCell(10, 5, $row->cantidad, 0, 'C');
+            
+            $this->SetXY($x + 165, $resta_al_ttl); 
             $total_formateado = number_format($row->total, 2, '.', ',');
-        
-            $this->SetFont('Arial', '', 7);
-            $this->Cell(10, 5, '$' . $total_formateado, 0, 1, 'C'); // 1 indica que se debe pasar a la siguiente línea al final de esta celda
+            $this->MultiCell(0, 5, '$' . $total_formateado, 0, 'C'); // 1 indica que se debe pasar a la siguiente línea al final de esta celda
             
             $total_fin += $row->total;
+            $count += 15;
+            $contador ++;
         }
         
         $this->Ln();
@@ -204,7 +228,7 @@ class OrdenCompraPDF extends FPDF {
         $totalAmount_formateado = number_format( $total_fin, 2, '.', ',');
 
         $this->SetFont('Arial','',10);
-        $this->Cell(0,10,'Total Amount:  $' . $totalAmount_formateado ,0,1,'L');
+        $this->Cell(0,35,'Total Amount:  $' . $totalAmount_formateado ,0,1,'L');
     }
 }
 

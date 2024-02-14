@@ -87,10 +87,18 @@
                     <div class="modal-body">
                         <div class="form-row">
                             <div class="form-group col">
-                        <!--<p class="font-weight-light">Ingrese el codigo.</p> -->
-                                <label for="codigoOC">Code purchase order:</label>
+                       
+                                <label for="codigoOC">Master purchase order:</label>
                                 <input class="form-control" name="codigoOC" type="text" id="codigoOC"
-                                    placeholder="Write the purchase order code" required  maxlength="10">
+                                    placeholder="Write the master purchase order" required  maxlength="10">
+
+                                <label for="codigoGE">General purchase order:</label>
+                                <input class="form-control" name="codigoGE" type="text" id="codigoGE"
+                                    placeholder="Write the general purchase order" required  maxlength="10">    
+
+                                <label for="warehouseList" class="form-label me-2">Warehouse:</label>
+                                <select id="warehouseList" name="warehouseList" class="form-select">   
+                                </select> 
                             </div>
                     </div>
 

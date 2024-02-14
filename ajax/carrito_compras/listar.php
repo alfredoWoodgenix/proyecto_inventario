@@ -165,5 +165,17 @@ $id_usuario_clientes = 1;
         
         
                 break;
+
+                case 5:
+                
+                    $rspta = $db->listaralmacenes($id_usuario_clientes);
+                
+                     echo '<option value="" selected>Select an option</option>';
+                     
+                    while ($reg = $rspta->fetch_object()) {
+                      echo '<option value=' . $reg->id_almacen . '>' . $reg->nombre . '</option>';
+                    }
+                
+                break;
     }
 ?>

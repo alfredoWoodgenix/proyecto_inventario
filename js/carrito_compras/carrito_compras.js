@@ -104,8 +104,16 @@ function listar() {
       order: [[0, "asc"]], // ordenar (columna, orden)
     });
   }
+
+  function init() {
+    listar();
+
+    $.post("../../ajax/carrito_compras/listar.php?op=5", function (r) {
+    $("#warehouseList").html(r);
+    });
+  }
   
-  listar();
+  init();
 
       //Función para elimina un Registro
 function eliminar(id_carrito_compras) {
@@ -294,10 +302,26 @@ $("#formulario_c").submit(function (e) {
   e.preventDefault();
   var form_data = $(this).serialize();
 
+  var warehouseListValue = document.getElementById("warehouseList").value;
+
+  if (warehouseListValue === "") {
+    bootbox.dialog({
+        title: "Warning",
+        message: "Please select a valid option from the warehouse.",
+        buttons: {
+          success: {
+            label: "Close",
+            className: "btn btn-danger",
+          },
+        },
+      });
+
+  }else{
+    
   var dialog = bootbox.dialog({
-    message:
-      '<div style="justify-content:center; display:flex;"><div class="spinner-border spinner-border-lg text-info"></div></div><br><p class="text-center text-primary">Loading...</p>',
-    size: "small",
+      message:
+        '<div style="justify-content:center; display:flex;"><div class="spinner-border spinner-border-lg text-info"></div></div><br><p class="text-center text-primary">Loading...</p>',
+      size: "small",
   });
 
   $.ajax({
@@ -438,7 +462,8 @@ $("#formulario_c").submit(function (e) {
       }
     })
     .always(function () {});
-
+    
+  }
     
 });
 

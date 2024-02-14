@@ -25,8 +25,10 @@ $numero_random = rand(10, 99);
             $codigoOC = $_POST["codigoOC"];
             $id_usuario = $_POST["id_usuario"];
             $id_usuario_clientes = $_POST["id_usuario_clientes"];
+            $codigoGE = $_POST["codigoGE"];
+            $warehouseList = $_POST["warehouseList"];
 
-            $codigo_resul = $db->inserta_codigoOC($codigoOC, $id_usuario, $fechaActual);
+            $codigo_resul = $db->inserta_codigoOC($codigoOC, $id_usuario, $fechaActual, $warehouseList);
 
             if($codigo_resul === 1){
                 echo 2;
@@ -37,7 +39,7 @@ $numero_random = rand(10, 99);
                 //$codigo = $row->codigo;
                 $folio = $row->codigo; 
                 $descripcion = 'Purchase order for hr';
-                $OC_interna = $ano . $mes . $dia . $hora . $minutos . $segundos . $id_usuario .$numero_random;
+                $OC_interna = $codigoGE;
 
                 $insertar_oc = $db->inserta_orden_compra($folio, $descripcion, $id_codigo_OC, $fechaActual, $OC_interna);
 
